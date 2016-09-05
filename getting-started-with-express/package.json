@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "babel --presets babel-preset-es2015 src/server.js --out-file index.js --watch"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "babel server.es6 --out-file server.js --watch"
   },
   "keywords": [],
   "author": "",
