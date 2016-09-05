@@ -1,6 +1,7 @@
 const fs = require('fs');
 const _ = require('lodash');
 const express = require('express');
+const engines = require('consolidate');
 const app = express();
 
 let users = [];
@@ -14,12 +15,14 @@ fs.readFile('users.json', {encoding: 'utf-8'}, (err, data) => {
   });
 })
 
+app.engine('hbs', engines.handlebars);
+
+app.set('views', './src/views');
+app.set('view engine', 'hbs');
+//app.set('view engine', 'jade');
+
 app.get('/', (req, res) => {
-  var buffer = '';
-  users.forEach(user => {
-    buffer += '<a href="/' + user.username + '">' + user.name.full + '</a> <br />';
-  });
-  res.send(buffer);
+  res.render('index', {users: users});
 });
 
 app.get(/big.*/, (req, res, next) => {

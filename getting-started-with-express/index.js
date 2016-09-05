@@ -3,6 +3,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 var express = require('express');
+var engines = require('consolidate');
 var app = express();
 
 var users = [];
@@ -16,12 +17,14 @@ fs.readFile('users.json', { encoding: 'utf-8' }, function (err, data) {
   });
 });
 
+app.engine('hbs', engines.handlebars);
+
+app.set('views', './src/views');
+app.set('view engine', 'hbs');
+//app.set('view engine', 'jade');
+
 app.get('/', function (req, res) {
-  var buffer = '';
-  users.forEach(function (user) {
-    buffer += '<a href="/' + user.username + '">' + user.name.full + '</a> <br />';
-  });
-  res.send(buffer);
+  res.render('index', { users: users });
 });
 
 app.get(/big.*/, function (req, res, next) {
