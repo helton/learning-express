@@ -54,7 +54,39 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/:username', (req, res) => {
+function verifyUser (req, res, next) {
+  let username = req.params.username;
+  let fp = getUserFilePath(username);
+  fs.exists(fp, yes => {
+    if (yes) {
+      next();
+    } else {
+      res.redirect('/error/' + req.params.username);
+    }
+  });
+}
+
+app.get('/error/:username', (req, res) => {
+  res.status(404)
+     .send('No user name ' + req.params.username + ' found');
+})
+
+app.get('*.json', (req, res) => {
+  res.download('./users/' + req.path, 'data.json');
+});
+
+app.get('/data/:username', (req, res) => {
+  var username = req.params.username;
+  var user = getUser(username);
+  res.json(user);
+});
+
+app.all('/:username', (req, res, next) => {
+  console.log(req.method, 'for', req.params.username);
+  next();
+});
+
+app.get('/:username', verifyUser, (req, res) => {
   let username = req.params.username;
   let user = getUser(username);
   res.render('user', {
