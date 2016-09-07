@@ -6,7 +6,7 @@ const path = require('path');
 const express = require('express');
 const engines = require('consolidate');
 const bodyParser = require('body-parser');
-const helpers = require('./helpers');
+const JSONStream = require('JSONStream');
 
 const app = express();
 
@@ -54,9 +54,22 @@ app.get('*.json', (req, res) => {
 });
 
 app.get('/data/:username', (req, res) => {
-    var username = req.params.username;
-    var user = helpers.getUser(username);
-    res.json(user);
+    let username = req.params.username;
+    let readable = fs.createReadStream('./users/' + username + '.json');
+    readable.pipe(res);
+});
+
+app.get('/users/by/:gender', (req, res) => {
+  let gender = req.params.gender;
+  let readable = fs.createReadStream('users.json');
+
+  readable
+    .pipe(JSONStream.parse('*', user => {
+      if (user.gender === gender)
+        return user.name;
+    }))
+    .pipe(JSONStream.stringify('[\n  ', '\,\n  ', '\n]\n'))
+    .pipe(res);
 });
 
 const userRouter = require('./username');
