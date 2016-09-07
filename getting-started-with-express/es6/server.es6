@@ -8,6 +8,8 @@ const engines = require('consolidate');
 const bodyParser = require('body-parser');
 const JSONStream = require('JSONStream');
 
+const User = require('./db').User;
+
 const app = express();
 
 app.engine('hbs', engines.handlebars);
@@ -26,22 +28,16 @@ app.get('/favicon.ico', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    let users = [];
-    fs.readdir('users', (err, files) => {
-        files.forEach(file => {
-            fs.readFile(path.join(__dirname, 'users', file), {
-                encoding: 'utf8'
-            }, (err, data) => {
-                let user = JSON.parse(data);
-                user.name.full = _.startCase(user.name.first + ' ' + user.name.last);
-                users.push(user);
-                if (users.length === files.length)
-                    res.render('index', {
-                        users: users
-                    });
-            });
-        });
-    });
+  User.find({}, (err, db_users) => {
+    let users = _.map(db_users, user =>
+      _.extend(user, {
+        name: {
+          full: _.startCase(user.name.first + ' ' + user.name.last)
+        }
+      })
+    );
+    res.render('index', { users: users });
+  });
 });
 
 app.get('/error/:username', (req, res) => {

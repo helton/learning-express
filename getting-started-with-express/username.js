@@ -5,23 +5,25 @@
 var fs = require('fs');
 var express = require('express');
 var helpers = require('./helpers');
+var User = require('./db').User;
 
 var router = express.Router({
-    mergeParams: true
+  mergeParams: true
 });
 
 router.use(function (req, res, next) {
-    console.log(req.method, 'for', req.params.username, 'at', req.path);
-    next();
+  console.log(req.method, 'for', req.params.username, 'at', req.path);
+  next();
 });
 
 router.get('/', /*helpers.verifyUser,*/function (req, res) {
-    var username = req.params.username;
-    var user = helpers.getUser(username);
+  var username = req.params.username;
+  User.findOne({ username: username }, function (err, user) {
     res.render('user', {
-        user: user,
-        address: user.location
+      user: user,
+      address: user.location
     });
+  });
 });
 
 /*
@@ -32,18 +34,17 @@ router.use((err, req, res, next) => {
 */
 
 router.put('/', function (req, res) {
-    var username = req.params.username;
-    var user = helpers.getUser(username);
-    user.location = req.body;
-    helpers.saveUser(username, user);
+  var username = req.params.username;
+  User.findOneAndUpdate({ username: username }, { location: req.body }, function (err, user) {
     res.end();
+  });
 });
 
 router.delete('/', function (req, res) {
-    var username = req.params.username;
-    var fp = helpers.getUserFilePath(username);
-    fs.unlinkSync(fp); // delete the file
-    res.sendStatus(200);
+  var username = req.params.username;
+  var fp = helpers.getUserFilePath(username);
+  fs.unlinkSync(fp); // delete the file
+  res.sendStatus(200);
 });
 
 module.exports = router;
