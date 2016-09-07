@@ -22,52 +22,45 @@ app.set('view engine', 'hbs');
 app.use('/profile-pics', express.static('images'));
 
 app.use(bodyParser.urlencoded({
-  extended: true
+    extended: true
 }));
 
 app.get('/favicon.ico', function (req, res) {
-  res.sendStatus(200);
+    res.sendStatus(200);
 });
 
 app.get('/', function (req, res) {
-  User.find({}, function (err, db_users) {
-    var users = _.map(db_users, function (user) {
-      return _.extend(user, {
-        name: {
-          full: _.startCase(user.name.first + ' ' + user.name.last)
-        }
-      });
+    User.find({}, function (err, users) {
+        res.render('index', { users: users });
     });
-    res.render('index', { users: users });
-  });
 });
 
 app.get('/error/:username', function (req, res) {
-  res.status(404).send('No user name ' + req.params.username + ' found');
+    res.status(404).send('No user name ' + req.params.username + ' found');
 });
 
 app.get('*.json', function (req, res) {
-  res.download('./users/' + req.path, 'data.json');
+    res.download('./users/' + req.path, 'data.json');
 });
 
 app.get('/data/:username', function (req, res) {
-  var username = req.params.username;
-  var readable = fs.createReadStream('./users/' + username + '.json');
-  readable.pipe(res);
+    var username = req.params.username;
+    var readable = fs.createReadStream('./users/' + username + '.json');
+    readable.pipe(res);
 });
 
 app.get('/users/by/:gender', function (req, res) {
-  var gender = req.params.gender;
-  var readable = fs.createReadStream('users.json');
+    var gender = req.params.gender;
+    var readable = fs.createReadStream('users.json');
 
-  readable.pipe(JSONStream.parse('*', function (user) {
-    if (user.gender === gender) return user.name;
-  })).pipe(JSONStream.stringify('[\n  ', '\,\n  ', '\n]\n')).pipe(res);
+    readable.pipe(JSONStream.parse('*', function (user) {
+        if (user.gender === gender) return user.name;
+    })).pipe(JSONStream.stringify('[\n  ', '\,\n  ', '\n]\n')).pipe(res);
 });
 
 var userRouter = require('./username');
 app.use('/:username', userRouter);
 
 var server = app.listen(3000, function () {
-  console.log('Server running at http://localhost:' + server.address().port);
+    console.log('Server running at http://localhost:' + server.address().port);
 });

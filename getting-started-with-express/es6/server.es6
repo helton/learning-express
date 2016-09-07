@@ -28,14 +28,7 @@ app.get('/favicon.ico', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  User.find({}, (err, db_users) => {
-    let users = _.map(db_users, user =>
-      _.extend(user, {
-        name: {
-          full: _.startCase(user.name.first + ' ' + user.name.last)
-        }
-      })
-    );
+  User.find({}, (err, users) => {
     res.render('index', { users: users });
   });
 });
