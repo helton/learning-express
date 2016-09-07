@@ -30,7 +30,7 @@ userSchema.virtual('name.full').get(function() {
 });
 
 userSchema.virtual('name.full').set(function(value) {
-  var bits = value.split(' ');
+  let bits = value.split(' ');
   this.name.first = bits[0];
   this.name.last = bits[1];
 });
