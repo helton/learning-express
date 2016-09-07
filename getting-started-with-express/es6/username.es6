@@ -8,12 +8,12 @@ const router = express.Router({
   mergeParams: true
 });
 
-router.all('/', (req, res, next) => {
-    console.log(req.method, 'for', req.params.username);
+router.use((req, res, next) => {
+    console.log(req.method, 'for', req.params.username, 'at', req.path);
     next();
 });
 
-router.get('/', helpers.verifyUser, (req, res) => {
+router.get('/', /*helpers.verifyUser,*/ (req, res) => {
     let username = req.params.username;
     let user = helpers.getUser(username);
     res.render('user', {
@@ -21,6 +21,13 @@ router.get('/', helpers.verifyUser, (req, res) => {
         address: user.location
     });
 });
+
+/*
+router.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+*/
 
 router.put('/', (req, res) => {
     let username = req.params.username;

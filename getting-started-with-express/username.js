@@ -10,12 +10,12 @@ var router = express.Router({
     mergeParams: true
 });
 
-router.all('/', function (req, res, next) {
-    console.log(req.method, 'for', req.params.username);
+router.use(function (req, res, next) {
+    console.log(req.method, 'for', req.params.username, 'at', req.path);
     next();
 });
 
-router.get('/', helpers.verifyUser, function (req, res) {
+router.get('/', /*helpers.verifyUser,*/function (req, res) {
     var username = req.params.username;
     var user = helpers.getUser(username);
     res.render('user', {
@@ -23,6 +23,13 @@ router.get('/', helpers.verifyUser, function (req, res) {
         address: user.location
     });
 });
+
+/*
+router.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+*/
 
 router.put('/', function (req, res) {
     var username = req.params.username;
